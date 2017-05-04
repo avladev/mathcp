@@ -26,7 +26,7 @@ object relations one of which have to be executed regularly.
   
 It consists of `Loop` and `Tickable` classes.
 
-Simplest explanation how in general this works is:
+Simplest explanation how this works:
 
 ```python
 def loop(tickables):
@@ -61,7 +61,7 @@ from mathcp.server import Connection
 class Hello(Connection):
     
     def on_message(self, message:str):
-        self.socket.print("Hello %s" % message)
+        self.send("Hello %s" % message)
 ```
 
 ## parallel.py

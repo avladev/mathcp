@@ -1,5 +1,7 @@
-.idea
-.vagrant
+/.idea/
+/.vagrant/
+/dist/
+/build/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

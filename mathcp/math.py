@@ -12,16 +12,27 @@ operators = {
 logger = logging.getLogger(__name__)
 
 
-def calculate(expression):
+def calculate(expression: str) -> float:
+    """
+    This function parses a users input expression, validates it and calculates the result of it
+    """
     return rpn_execute(shunting_yard(validate_input(prepare_input(expression))))
 
 
-def prepare_input(expression: str):
+def prepare_input(expression: str) -> [str]:
+    """
+    Parses the expression to tokens
+    """
     parts = re.findall('-?[0-9.?]+|\(|\)|.', str(expression))
     return list(filter(lambda x: len(x), map(str.strip, parts)))
 
 
-def validate_input(expression: [str]):
+def validate_input(expression: [str]) -> [str]:
+    """
+    Validates that each token can be handled by the current implementation
+
+    At the moment only: numbers, + - * / ( ) are handled
+    """
     for token in expression:
         if not token in operators and not is_number(token) and not token in ("(", ")"):
             raise SyntaxError("Invalid token %s" % token)
@@ -29,7 +40,7 @@ def validate_input(expression: [str]):
     return expression
 
 
-def is_number(value):
+def is_number(value) -> bool:
     try:
         float(value)
         return True
@@ -37,7 +48,16 @@ def is_number(value):
         return False
 
 
-def shunting_yard(expression: [str]):
+def shunting_yard(expression: [str]) -> [str]:
+    """
+    Shunting-Yard algorithm implementation.
+
+    Basically it reads all the expressions and put them in a queue by they order of precedence,
+    so they can be executed later. It outputs Reverse Polish notation (RPN) list which can be
+    executed to obtain a result of the operations.
+
+    For more info: https://brilliant.org/wiki/shunting-yard-algorithm/
+    """
     output_queue = []
     operator_stack = []
 
@@ -79,7 +99,12 @@ def shunting_yard(expression: [str]):
     return output_queue
 
 
-def rpn_execute(rpn: [str]):
+def rpn_execute(rpn: [str]) -> float:
+    """
+    Executes math operations from a Reverse Polish notation list
+
+    For more info: https://en.wikipedia.org/wiki/Reverse_Polish_notation
+    """
     stack = []
 
     for value in rpn:
@@ -94,6 +119,7 @@ def rpn_execute(rpn: [str]):
             if callable(function):
                 stack.append(function(a, b))
         else:
+            # Don't convert to float if not needed
             stack.append(int(value) if value.replace('-', '').isdigit() else float(value))
 
     return stack.pop()

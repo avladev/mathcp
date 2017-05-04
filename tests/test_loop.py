@@ -26,7 +26,7 @@ class LoopTestCase(TestCase):
 
         class TestTickable1(Tickable):
             def tick(self):
-                self.loop.add(TestTickable2())
+                self._loop.add(TestTickable2())
 
         try:
             Loop(TestTickable1()).run(1)
@@ -48,4 +48,4 @@ class LoopTestCase(TestCase):
             Loop(tickable).run(1)
         except Exception as e:
             self.assertEqual(str(e), "destroy")
-            self.assertEqual(tickable.loop, None)
+            self.assertEqual(tickable._loop, None)

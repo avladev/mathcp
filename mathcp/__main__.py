@@ -4,52 +4,75 @@ import logging
 from mathcp.loop import Loop
 from mathcp.math import calculate
 from mathcp.parallel import Pool
-from mathcp.server import Server, Client
-
+from mathcp.server import Server, Connection
 
 logger = logging.getLogger(__name__)
 
-class MathClient(Client):
-    def __init__(self, client_socket, pool: Pool, **kwargs):
-        super().__init__(client_socket, '\n', 'utf8')
-        self.pool = pool
+
+class MathSolver(Connection):
+    """
+    This is a Connection implementation which separates socket data by '\n'
+    and executes each message in a pool of processes to obtain the result of
+    the math operations.
+    """
+
+    def __init__(self, raw_socket, pool: Pool, **kwargs):
+        super().__init__(raw_socket, '\n', 'utf8')
+        self._pool = pool
 
     def on_message(self, message):
         logger.info("Message: %s", message)
 
+        if message == "":
+            self.send("Please enter an expression!")
+            return
+
         if message == chr(0x03) or message == "exit":
+            # Disconnect when "exit" or Ctrl-C is received
             self.on_disconnect()
             return
 
-        self.pool.add(calculate, (message,), self.on_calculation_success, self.on_calculation_error)
+        self._pool.add(calculate, (message,), self.on_calculation_success, self.on_calculation_error)
+
+    def on_message_error(self, error: Exception) -> None:
+        logger.info("Error: %s", error)
+        self.send("Error while executing the expression!")
 
     def on_calculation_success(self, result):
         logger.info("Calculation success: %s", result)
-        self.socket.print(str(result))
+        self.send(str(result))
 
     def on_calculation_error(self, error):
         logger.info("Calculation error: %s", error)
 
         if isinstance(error, SyntaxError):
-            self.socket.print("Error: Invalid expression!")
+            self.send("Error: Invalid expression!")
         else:
-            self.socket.print("Error: %s" % error)
+            self.send("Error: %s" % error)
 
     def on_connected(self):
         super().on_connected()
-        self.socket.print("=====================================")
-        self.socket.print(" Welcome to math solver :D")
-        self.socket.print(" Allowed operations are: +, -, *, /")
-        self.socket.print("")
-        self.socket.print(" Send 'exit' or Ctrl-C to quit")
-        self.socket.print("=====================================")
+        self.send("=====================================")
+        self.send(" Welcome to math solver")
+        self.send(" Allowed operations are: +, -, *, /")
+        self.send("")
+        self.send(" Send 'exit' or Ctrl-C to quit")
+        self.send("=====================================")
 
     def on_disconnect(self):
         super().on_disconnect()
         logger.info("Connection closed")
 
 
-if __name__ == "__main__":
+def run_server(host: str, port: int):
+    pool = Pool()
+    server = Server(host, port, MathSolver, pool=pool)
+    server.listen()
+
+    Loop(server, pool).run()
+
+
+def main():
     logging.basicConfig(
         format='[%(asctime)s] [%(levelname)s] [pid %(process)d] '
                '[%(name)s][%(funcName)s][%(lineno)d] %(message)s'
@@ -64,8 +87,8 @@ if __name__ == "__main__":
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
 
-    pool = Pool()
-    server = Server(args.host, args.port, MathClient, pool=pool)
-    server.listen()
+    run_server(args.host, args.port)
 
-    Loop(server, pool).run()
+
+if __name__ == "__main__":
+    main()

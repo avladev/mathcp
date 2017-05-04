@@ -23,7 +23,7 @@ def prepare_input(expression: str) -> [str]:
     """
     Parses the expression to tokens
     """
-    parts = re.findall('-?[0-9.?]+|\(|\)|.', str(expression))
+    parts = re.findall('[0-9.?]+|\(|\)|.', str(expression))
     return list(filter(lambda x: len(x), map(str.strip, parts)))
 
 

@@ -3,6 +3,8 @@
 This is a simple math tcp server which can compute math expressions.
 It supports only +, -, *, /, (, ) also operations can be nested in parenthesis.
 
+At the moment unary expressions like `-1` and `(-1 + 3)` are not supported. 
+
 It uses Shunting-Yard and Reverse Polish notation algorithms to compute
 the proper order of execution of operators.
 

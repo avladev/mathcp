@@ -2,6 +2,7 @@ import unittest
 
 from mathcp.math import calculate
 
+
 class MathTestCase(unittest.TestCase):
     def test_integer(self):
         self.assertEqual(calculate('1'), 1)
@@ -19,11 +20,11 @@ class MathTestCase(unittest.TestCase):
         self.assertAlmostEqual(calculate('2.2 * 2.2'), 4.84)
         self.assertAlmostEqual(calculate('2.2 / 2.2'), 1)
 
-    def test_unary(self):
-        self.assertEqual(calculate('-1'), -1)
-        self.assertEqual(calculate('-2.2'), -2.2)
-        self.assertEqual(calculate('2 + (-1 + 3)'), 4)
-
+    def test_unary_not_supported(self):
+        with self.assertRaises(SyntaxError):
+            calculate('-1')
+        with self.assertRaises(SyntaxError):
+            calculate('(-1 + 3)')
 
     def test_parentheses(self):
         self.assertEqual(calculate('(1)'), 1)
@@ -57,3 +58,14 @@ class MathTestCase(unittest.TestCase):
     def test_invalid_operand(self):
         with self.assertRaises(SyntaxError):
             calculate('2 * pi')
+
+    def test_a_lot_of_operations(self):
+        self.assertAlmostEqual(
+            calculate('3*(5+(39+(18*3/13)/7)*6-3)/0.999'),
+            719.4007194007193
+        )
+
+        self.assertAlmostEqual(
+            calculate('(3 * (5 + ((39 + (((18 * 3) / 13) / 7)) * 6) - 3)) / 0.999'),
+            719.4007194007193
+        )

@@ -59,10 +59,9 @@ class ServerTestCase(TestCase):
         self.assertAlmostEqual(float(self.calculate('2.2 * 2.2')), 4.84)
         self.assertAlmostEqual(float(self.calculate('2.2 / 2.2')), 1)
 
-    def test_unary(self):
-        self.assertEqual(self.calculate('-1'), '-1')
-        self.assertEqual(self.calculate('-2.2'), '-2.2')
-        self.assertEqual(self.calculate('2 + (-1 + 3)'), '4')
+    def test_unary_not_supported(self):
+        self.assertEqual(self.calculate('-1'), error_msg)
+        self.assertEqual(self.calculate('(-1 + 3)'), error_msg)
 
     def test_parentheses(self):
         self.assertEqual(self.calculate('(1)'), '1')

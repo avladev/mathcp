@@ -87,6 +87,8 @@ execution to the `Pool`
 
 # Install and run
 
+Requirements: Python 3.5+
+
 ## Install
 To install the script run from source:
 
@@ -94,7 +96,7 @@ To install the script run from source:
 
 To install the script from git with pip:
 
-`pip install git+https://github.com/avladev/mathcp.git`
+`pip3 install git+https://github.com/avladev/mathcp.git`
 
 This will create an executable script called `mathcp` which you can use to run the server.
 
